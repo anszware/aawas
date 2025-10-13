@@ -7,6 +7,16 @@ const { authenticateToken } = require('../middlewares/auth');
 // All notification routes require authentication
 router.use(authenticateToken);
 
+// @route   POST /api/notifications/location
+// @desc    Create a new notification for a location
+// @access  Authenticated User
+router.post('/location', notificationController.createLocationNotification);
+
+// @route   POST /api/notifications
+// @desc    Create a new notification
+// @access  Authenticated User
+router.post('/', notificationController.createNotification);
+
 // @route   GET /api/notifications
 // @desc    Get all notifications for the authenticated user
 // @access  Authenticated User
