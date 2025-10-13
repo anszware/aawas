@@ -25,4 +25,5 @@ jobs:
           ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} << 'EOF'
           cd /home/fikri/iot
           git pull origin main
+	  npm install
           EOF
