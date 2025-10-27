@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     jenis_data: {
-      type: DataTypes.ENUM('suhu', 'kelembaban', 'karbon', 'lampu'),
+      type: DataTypes.ENUM('suhu', 'kelembaban','relay','PM10','PM2.5','CO','NOx','SO2','O3','HC'),
       allowNull: false,
     },
     data: {

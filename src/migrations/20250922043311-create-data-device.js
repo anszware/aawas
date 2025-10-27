@@ -20,7 +20,7 @@ module.exports = {
         onDelete: 'CASCADE'
       },
       jenis_data: {
-        type: Sequelize.ENUM('suhu', 'kelembaban', 'karbon', 'lampu'),
+        type: Sequelize.ENUM('suhu', 'kelembaban','relay','PM10','PM2.5','CO','NOx','SO2','O3','HC'),
         allowNull: false,
       },
       data: {

@@ -6,6 +6,10 @@ const { authenticateToken, authorizeRole } = require('../middlewares/auth');
 const validate = require('../middlewares/validator');
 const { createDeviceSchema, updateDeviceSchema, activeDeviceSchema } = require('../validators/device.validator');
 
+// Public routes (tanpa auth token dan role)
+router.put('/active/:noseri', validate(activeDeviceSchema), deviceController.activeDevice);
+router.get('/status/:noseri', deviceController.statusDevice);
+
 // All routes in this file are protected
 router.use(authenticateToken);
 router.use(authorizeRole(['super_admin', 'admin_user']));
@@ -35,7 +39,6 @@ router.get('/:id', deviceController.getDeviceById);
 // @desc    Update a device
 // @access  super_admin, admin_user
 router.put('/:id', validate(updateDeviceSchema), deviceController.updateDevice);
-router.put('/active/:noseri', validate(activeDeviceSchema), deviceController.activeDevice);
 
 // @route   DELETE /api/devices/:id
 // @desc    Delete a device

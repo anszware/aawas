@@ -1,5 +1,6 @@
 'use strict';
 const { Device, Location } = require('../models');
+const { createLocationNotification } = require('../services/notification.service');
 
 const createDevice = async (req, res) => {
   try {
@@ -86,21 +87,43 @@ const activeDevice = async (req, res) => {
     const deviceData = req.body;
 
     const device = await Device.findOne({ where: { nomor_seri: noseri } });
-
+    console.log(device);
     if (!device) {
       return res.status(404).json({ message: 'Device not found' });
-    }
+    }    
+    // add locationId from the found device into deviceData
+    deviceData.locationId = device.locationId;
 
-    if (deviceData.locationId) {
-      const location = await Location.findByPk(deviceData.locationId);
-      if (!location) {
-        return res.status(404).json({ message: 'Location not found' });
-      }
-    }
+    // if (device.locationId) {
+    //   const location = await Location.findByPk(device.locationId);
+    //   if (!location) {
+    //     return res.status(404).json({ message: 'Location not found' });
+    //   }
+    // }
 
     await device.update(deviceData);
 
+    if (device.locationId) {
+      const io = req.app.get('socketio');
+      await createLocationNotification(io, device.locationId, `Device ${device.nomor_seri} has been activated.`, 'device_activated');
+    }
+
     res.status(200).json({ message: 'Device updated successfully', device });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating device', error: error.message });
+  }
+};
+const statusDevice = async (req, res) => {
+  try {
+    const { noseri } = req.params;
+
+    const device = await Device.findOne({ where: { nomor_seri: noseri } });
+     if (!device.isActive) {
+      res.status(404).json({ message: 'Device is Not Active', active : false });
+    }
+
+    res.status(200).json({ message: 'Device is active', active : true });
+
   } catch (error) {
     res.status(500).json({ message: 'Error updating device', error: error.message });
   }
@@ -148,5 +171,6 @@ module.exports = {
   deleteDevice,
   getDevicesForMap,
   getAllDevicesLocations,
-  activeDevice
+  activeDevice,
+  statusDevice
 };

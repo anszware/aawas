@@ -145,36 +145,42 @@ const getAdminUserDashboard = async (req, res) => {
       where: { locationId: { [Op.in]: locationIds } },
       include: [
         { model: Location, attributes: ['name'] },
-        { model: DataDevice, attributes: ['jenis_data', 'data'], required: false }
+        { 
+          model: DataDevice, 
+          attributes: ['jenis_data', 'data', 'recorded_at'], 
+          required: false,
+          where: {
+            jenis_data: {
+              [Op.in]: ['PM10', 'PM2.5', 'CO', 'NOx', 'SO2', 'O3', 'HC']
+            }
+          }
+        }
       ]
     });
 
     let totalSuhu = 0, countSuhu = 0;
     let totalKelembaban = 0, countKelembaban = 0;
-    const carbonData = [];
+    const qualityChartData = [];
 
     devices.forEach(device => {
       if(device.isActive) {
         device.DataDevices.forEach(data => {
+          qualityChartData.push({
+            jenis_data: data.jenis_data,
+            data: data.data,
+            recorded_at: data.recorded_at
+          });
+
           if (data.jenis_data === 'suhu') {
             totalSuhu += data.data;
             countSuhu++;
           } else if (data.jenis_data === 'kelembaban') {
             totalKelembaban += data.data;
             countKelembaban++;
-          } else if (data.jenis_data === 'karbon') {
-            carbonData.push(data.data);
           }
         });
       }
     });
-
-    // const notifications = await Notification.findAll({
-    //     where: { locationId: { [Op.in]: locationIds } },
-    //     order: [['createdAt', 'DESC']],
-    //     limit: 10
-    // });
-
 
     res.status(200).json({
       hasLocation: true,
@@ -185,8 +191,7 @@ const getAdminUserDashboard = async (req, res) => {
       productLocations: devices.map(d => ({ deviceName: d.nomor_seri, lat: d.lang, lng: d.long, locationName: d.Location.name })),
       averageTemp: countSuhu > 0 ? totalSuhu / countSuhu : 0,
       averageHumidity: countKelembaban > 0 ? totalKelembaban / countKelembaban : 0,
-      carbonChartData: carbonData,
-      // notifications
+      qualityChartData: qualityChartData,
     });
 
   } catch (error) {

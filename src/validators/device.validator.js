@@ -22,7 +22,6 @@ const updateDeviceSchema = Joi.object({
 }).min(1);
 const activeDeviceSchema = Joi.object({
   nomor_seri: Joi.string().optional(),
-  locationId: Joi.number().integer(),
   ip: Joi.string().ip(),
   mac_address: Joi.string().pattern(/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/),
   lang: Joi.string(),

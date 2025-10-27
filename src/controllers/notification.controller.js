@@ -1,34 +1,15 @@
 'use strict';
 const { Notification, User, LocationMember } = require('../models');
+const { createLocationNotification: createLocationNotificationService } = require('../services/notification.service');
 
 const createLocationNotification = async (req, res) => {
   try {
     const { locationId, message, type } = req.body;
     const io = req.app.get('socketio');
 
-    const members = await LocationMember.findAll({ where: { locationId } });
+    await createLocationNotificationService(io, locationId, message, type);
 
-    if (!members.length) {
-      return res.status(404).json({ message: 'No members found in this location' });
-    }
-
-    const notifications = members.map(member => ({
-      userId: member.userId,
-      message,
-      type,
-    }));
-
-    const createdNotifications = await Notification.bulkCreate(notifications);
-
-    // Emit a socket event to the location room
-    io.to(`location_${locationId}`).emit('new_notification', {
-      message,
-      type,
-      locationId,
-      createdAt: new Date(),
-    });
-
-    res.status(201).json({ message: 'Location notification created successfully', createdNotifications });
+    res.status(201).json({ message: 'Location notification created successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error creating location notification', error: error.message });
   }
