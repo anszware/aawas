@@ -151,7 +151,7 @@ const getAdminUserDashboard = async (req, res) => {
           required: false,
           where: {
             jenis_data: {
-              [Op.in]: ['PM10', 'PM2.5', 'CO', 'NOx', 'SO2', 'O3', 'HC']
+              [Op.in]: ['kelembaban','suhu','PM10', 'PM2.5', 'CO', 'NOx', 'SO2', 'O3', 'HC']
             }
           }
         }

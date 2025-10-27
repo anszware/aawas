@@ -20,6 +20,12 @@ const createDataDevice = async (req, res) => {
     // Update device's last_seen and isActive status
     await device.update({ last_seen: new Date(), isActive: true });
 
+    // Emit socket event
+    const io = req.app.get('socketio');
+    if (io) {
+      io.to(`location_${device.locationId}`).emit('new_data', newDataDevice);
+    }
+
     res.status(201).json({ message: 'Data device created successfully', data: newDataDevice });
   } catch (error) {
     res.status(500).json({ message: 'Error creating data device', error: error.message });
